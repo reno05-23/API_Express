@@ -1,0 +1,24 @@
+{
+  "name": "api_express",
+  "version": "1.0.0",
+  "description": "Project API berbasis NodeJS + API",
+  "keywords": [
+    "API",
+    "Express",
+    "NodeJS",
+    "Back",
+    "End"
+  ],
+  "license": "ISC",
+  "author": "Reno Aries Prayoga",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "statrt": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1"
+  }
+}
