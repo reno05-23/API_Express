@@ -2,10 +2,10 @@ const mysql = require('mysql2/promise');
 let sql;
 const buatKoneksi = async () => {
     return await mysql.createConnection({
-        host: '194.233.65.45',
-        user: 'ujxhqnyj_renoaries',
-        password: 'RenoRiya23',
-        database: 'ujxhqnyj_renoaries_api'
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME
     })
 }
 const tambahBackup = async (id, nama, channel) => {
