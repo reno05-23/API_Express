@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 let sql;
 const buatKoneksi = async () => {
     return await mysql.createConnection({
-        host: 'renoaries.co-id.id',
+        host: '194.233.65.45',
         user: 'ujxhqnyj_renoaries',
         password: 'RenoRiya23',
         database: 'ujxhqnyj_renoaries_api'
