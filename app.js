@@ -64,6 +64,9 @@ app.get("/daftar_backup", async (req, res) => {
 })
 
 app.post("/detail_backup", async (req, res) => {
+    console.log("HEADERS:", req.headers['content-type']);
+    console.log("BODY:", req.body);
+    console.log("QUERY:", req.query);
     let idbackup = req.body.idbackup;
     const dtdetail = await db.bacaDetailBackup(idbackup);
     if(dtdetail == false){
