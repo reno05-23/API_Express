@@ -66,7 +66,7 @@ app.get("/daftar_backup", async (req, res) => {
 })
 
 app.post("/detail_backup", async (req, res) => {
-    let idbackup = req.body.idbackup;
+    let idbackup = req.query.idbackup;
     const dtdetail = await db.bacaDetailBackup(idbackup);
     if(dtdetail == false){
         res.send('{"kode":"00", "pesan":"Data Detail Backup Tidak Di Temukan"}');
