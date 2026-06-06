@@ -4,9 +4,17 @@ const cors = require("cors");
 const db = require("./db");
 const app = express();
 const port = process.env.PORT || 5775;
+app.set("view engine", "ejs");   //menggunakan ejs sebagai view engine untuk merender file view
+app.set("views", "view");  //nama folder untuk menyimpan file view adalah "view"
+app.use(express.static(__dirname + "/public"));  //nama folder untuk menyimpan file statis seperti css, js, gambar, dll adalah "public"
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+app.get("/", async (req, res) => {
+    const dtx = await db.getMetode();
+    res.render("beranda", {data: dtx});  //merender file view bernama "beranda.ejs" dan mengirimkan data dari database ke view tersebut dengan nama variabel "data"
+})
 
 app.get("/status", (req, res) => {
     res.send(
@@ -45,4 +53,25 @@ app.post("/backup", async (req, res) => {
         kodex = 500;
     }
     return res.status(kodex).json(pesanx);
+})
+
+// middleware untuk menagani request data backup
+app.get("/daftar_backup", async (req, res) => {
+    const dtbackup = await db.bacaBackup();
+    if(dtbackup == false){
+        res.send('{"kode":"00", "pesan":"Data Backup Tidak Di Temukan"}');
+    }else{
+        res.send('{"kode":"01", "pesan":"Data Backup Di Temukan", "data":' + JSON.stringify(dtbackup) + '}');
+    }
+})
+
+app.post("/detail_backup", async (req, res) => {
+    let idbackup = req.body.idbackup;
+    const dtdetail = await db.bacaDetailBackup(idbackup);
+    if(dtdetail == false){
+        res.send('{"kode":"00", "pesan":"Data Detail Backup Tidak Di Temukan"}');
+    }else{
+        res.send('{"kode":"01", "pesan":"Data Detail Backup Di Temukan", "data":' + JSON.stringify(dtdetail) + '}');
+
+    }
 })
