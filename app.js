@@ -22,9 +22,7 @@ app.get("/status", (req, res) => {
     );
 })
 
-app.listen(port, () => {
-    console.log(`API Berjalan di Port: ${port}`);
-})
+
 
 app.post("/backup", async (req, res) => {
     let pesanx, kodex;
@@ -66,7 +64,7 @@ app.get("/daftar_backup", async (req, res) => {
 })
 
 app.post("/detail_backup", async (req, res) => {
-    let idbackup = req.query.idbackup;
+    let idbackup = req.body.idbackup;
     const dtdetail = await db.bacaDetailBackup(idbackup);
     if(dtdetail == false){
         res.send('{"kode":"00", "pesan":"Data Detail Backup Tidak Di Temukan"}');
@@ -74,4 +72,8 @@ app.post("/detail_backup", async (req, res) => {
         res.send('{"kode":"01", "pesan":"Data Detail Backup Di Temukan", "data":' + JSON.stringify(dtdetail) + '}');
 
     }
+})
+
+app.listen(port, () => {
+    console.log(`API Berjalan di Port: ${port}`);
 })
