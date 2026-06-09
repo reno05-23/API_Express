@@ -5,34 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Backup - ExpressJS API</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Pusher JS Client -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', 'Courier New', monospace;
             background: #000000;
             color: #ffffff;
             min-height: 100vh;
-            padding: 0;
             overflow-x: hidden;
         }
-
-        /* Navbar */
         .navbar {
             background: #ffffff;
             padding: 25px 40px;
             border-bottom: 8px solid #a855f7;
-            margin-bottom: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
         }
-
         .navbar h2 {
             color: #000000;
             font-size: 1.8em;
@@ -42,17 +34,8 @@
             gap: 12px;
             letter-spacing: -1px;
         }
-
-        .navbar h2 i {
-            color: #a855f7;
-            font-size: 1.2em;
-        }
-
-        .navbar-links {
-            display: flex;
-            gap: 15px;
-        }
-
+        .navbar h2 i { color: #a855f7; font-size: 1.2em; }
+        .navbar-links { display: flex; gap: 15px; align-items: center; }
         .navbar a {
             color: #ffffff;
             background: #000000;
@@ -66,7 +49,6 @@
             transition: all 0.2s;
             cursor: pointer;
         }
-
         .navbar a:hover {
             background: #a855f7;
             border-color: #ffffff;
@@ -74,17 +56,35 @@
             box-shadow: 6px 6px 0 #a855f7;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        /* Realtime status indicator */
+        .realtime-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #000;
+            border: 3px solid #a855f7;
+            padding: 8px 16px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #a855f7;
+            text-transform: uppercase;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #6b7280;
+            transition: background 0.3s;
+        }
+        .dot.connected { background: #22c55e; animation: blink 1.5s infinite; }
+        .dot.disconnected { background: #ef4444; }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
-        /* Header */
-        .header {
-            margin-bottom: 50px;
-        }
-
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        .header { margin-bottom: 50px; }
         .header h1 {
             font-size: 4em;
             font-weight: 900;
@@ -95,22 +95,13 @@
             line-height: 1;
             text-shadow: 4px 4px 0 #a855f7;
         }
-
-        .header p {
-            font-size: 1.3em;
-            color: #a855f7;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        /* Stats */
+        .header p { font-size: 1.3em; color: #a855f7; font-weight: 700; letter-spacing: 1px; }
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
             margin-bottom: 50px;
         }
-
         .stat-card {
             background: #ffffff;
             color: #000000;
@@ -121,27 +112,20 @@
             transition: all 0.2s;
             cursor: pointer;
         }
-
         .stat-card:hover {
             border-color: #a855f7;
             transform: translate(-6px, -6px);
             box-shadow: 10px 10px 0 #a855f7;
         }
-
-        .stat-card i {
-            font-size: 3em;
-            color: #a855f7;
-            margin-bottom: 15px;
-            display: block;
-        }
-
+        .stat-card i { font-size: 3em; color: #a855f7; margin-bottom: 15px; display: block; }
         .stat-card h3 {
             font-size: 2.5em;
             margin: 15px 0;
             color: #a855f7;
             text-shadow: 2px 2px 0 #000000;
+            transition: transform 0.3s;
         }
-
+        .stat-card h3.updated { transform: scale(1.2); }
         .stat-card p {
             font-size: 1em;
             color: #000000;
@@ -149,15 +133,12 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-
-        /* Content */
         .content {
             background: #ffffff;
             padding: 50px;
             border: 8px solid #000000;
             margin-bottom: 50px;
         }
-
         .content h2 {
             color: #000000;
             margin-bottom: 40px;
@@ -171,19 +152,12 @@
             padding-bottom: 25px;
             border-bottom: 6px solid #a855f7;
         }
-
-        .content h2 i {
-            color: #a855f7;
-            font-size: 1.1em;
-        }
-
-        /* Backup Grid */
+        .content h2 i { color: #a855f7; font-size: 1.1em; }
         .backup-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 30px;
         }
-
         .backup-card {
             background: #1a1a1a;
             color: #ffffff;
@@ -193,35 +167,17 @@
             cursor: pointer;
             position: relative;
         }
-
         .backup-card::before {
             content: '';
             position: absolute;
-            top: -6px;
-            left: -6px;
-            right: -6px;
-            bottom: -6px;
+            top: -6px; left: -6px; right: -6px; bottom: -6px;
             background: #a855f7;
             z-index: -1;
             transition: all 0.2s;
         }
-
-        .backup-card:hover {
-            transform: translate(-8px, -8px);
-            border-color: #ffffff;
-        }
-
-        .backup-card:hover::before {
-            transform: translate(6px, 6px);
-        }
-
-        .backup-card i {
-            font-size: 2.5em;
-            color: #a855f7;
-            margin-bottom: 20px;
-            display: block;
-        }
-
+        .backup-card:hover { transform: translate(-8px, -8px); border-color: #ffffff; }
+        .backup-card:hover::before { transform: translate(6px, 6px); }
+        .backup-card i { font-size: 2.5em; color: #a855f7; margin-bottom: 20px; display: block; }
         .backup-card h3 {
             font-size: 1.5em;
             margin-bottom: 15px;
@@ -231,36 +187,10 @@
             text-transform: uppercase;
             letter-spacing: -0.5px;
         }
-
-        .backup-card p {
-            font-size: 0.95em;
-            margin-bottom: 20px;
-            color: #a855f7;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-        }
-
-        .backup-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding-top: 20px;
-            border-top: 4px solid #a855f7;
-        }
-
-        .backup-info span {
-            font-size: 0.9em;
-            color: #ffffff;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .backup-info span i {
-            color: #a855f7;
-        }
-
+        .backup-card p { font-size: 0.95em; margin-bottom: 20px; color: #a855f7; font-weight: 700; font-family: 'Courier New', monospace; }
+        .backup-info { display: flex; flex-direction: column; gap: 12px; padding-top: 20px; border-top: 4px solid #a855f7; }
+        .backup-info span { font-size: 0.9em; color: #ffffff; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .backup-info span i { color: #a855f7; font-size: 1em; display: inline; margin: 0; }
         .badge {
             display: inline-block;
             background: #a855f7;
@@ -273,36 +203,50 @@
             font-size: 0.75em;
             letter-spacing: 1px;
         }
+        /* Animasi card baru masuk */
+        .backup-card.new-card {
+            animation: slideIn 0.5s ease forwards;
+            border-color: #22c55e;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
-        /* Empty State */
+        /* Toast notifikasi */
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: #fff;
+            border: 4px solid #000;
+            padding: 16px 24px;
+            font-weight: 900;
+            font-size: 1em;
+            display: none;
+            z-index: 9999;
+            box-shadow: 6px 6px 0 #000;
+            text-transform: uppercase;
+            max-width: 320px;
+        }
+        #toast.show { display: flex; align-items: center; gap: 12px; animation: fadeInOut 3.5s forwards; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(40px); }
+            10% { opacity: 1; transform: translateX(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(40px); }
+        }
+
         .empty-state {
             text-align: center;
             padding: 80px 40px;
             background: #1a1a1a;
             border: 6px solid #a855f7;
         }
-
-        .empty-state i {
-            font-size: 5em;
-            color: #a855f7;
-            margin-bottom: 25px;
-        }
-
-        .empty-state h3 {
-            color: #ffffff;
-            margin-bottom: 15px;
-            font-size: 2em;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
-        .empty-state p {
-            color: #a855f7;
-            font-size: 1.1em;
-            font-weight: 700;
-        }
-
-        /* Footer */
+        .empty-state i { font-size: 5em; color: #a855f7; margin-bottom: 25px; }
+        .empty-state h3 { color: #ffffff; margin-bottom: 15px; font-size: 2em; font-weight: 900; text-transform: uppercase; }
+        .empty-state p { color: #a855f7; font-size: 1.1em; font-weight: 700; }
         .footer {
             text-align: center;
             padding: 30px;
@@ -312,128 +256,178 @@
             font-weight: 900;
             font-size: 1.1em;
         }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5em;
-                text-shadow: 2px 2px 0 #a855f7;
-            }
-
-            .backup-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .navbar {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .navbar-links {
-                width: 100%;
-            }
-
-            .navbar a {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .content {
-                padding: 25px;
-            }
-
-            .content h2 {
-                font-size: 1.8em;
-            }
-        }
-
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 20px #a855f7;
-            }
-            50% {
-                box-shadow: 0 0 40px #a855f7;
-            }
-        }
-
-        .backup-card:focus-visible {
-            outline: none;
+            .header h1 { font-size: 2.5em; text-shadow: 2px 2px 0 #a855f7; }
+            .backup-grid { grid-template-columns: 1fr; }
+            .navbar { flex-direction: column; gap: 20px; }
+            .navbar-links { width: 100%; flex-direction: column; }
+            .navbar a { width: 100%; justify-content: center; }
+            .content { padding: 25px; }
+            .content h2 { font-size: 1.8em; }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <div class="navbar">
-        <h2><i class="fas fa-database"></i> BACKUP MANAGER</h2>
-        <div class="navbar-links">
-            <a href="/status"><i class="fas fa-check-circle"></i> STATUS</a>
+
+<!-- Toast Notifikasi -->
+<div id="toast"><i class="fas fa-bolt"></i> <span id="toast-msg">Backup baru masuk!</span></div>
+
+<!-- Navbar -->
+<div class="navbar">
+    <h2><i class="fas fa-database"></i> BACKUP MANAGER</h2>
+    <div class="navbar-links">
+        <!-- Indikator koneksi Pusher -->
+        <div class="realtime-badge">
+            <div class="dot" id="pusher-dot"></div>
+            <span id="pusher-status">Menghubungkan...</span>
+        </div>
+        <a href="/status"><i class="fas fa-check-circle"></i> STATUS</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>📦 DATA BACKUP</h1>
+        <p>// KELOLA BACKUP ANDA DENGAN PERCAYA DIRI</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card">
+            <i class="fas fa-database"></i>
+            <h3 id="total-backup"><%= data ? data.length : 0 %></h3>
+            <p>TOTAL BACKUP</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-server"></i>
+            <h3>AKTIF</h3>
+            <p>SERVER STATUS</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-shield-alt"></i>
+            <h3>AMAN</h3>
+            <p>DATA TERLINDUNGI</p>
         </div>
     </div>
 
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>📦 DATA BACKUP</h1>
-            <p>// KELOLA BACKUP ANDA DENGAN PERCAYA DIRI</p>
-        </div>
+    <!-- Content -->
+    <div class="content">
+        <h2><i class="fas fa-list"></i> DAFTAR BACKUP</h2>
 
-        <!-- Stats -->
-        <div class="stats">
-            <div class="stat-card">
-                <i class="fas fa-database"></i>
-                <h3><%= data ? data.length : 0 %></h3>
-                <p>TOTAL BACKUP</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-server"></i>
-                <h3>AKTIF</h3>
-                <p>SERVER STATUS</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-shield-alt"></i>
-                <h3>AMAN</h3>
-                <p>DATA TERLINDUNGI</p>
-            </div>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <h2><i class="fas fa-list"></i> DAFTAR BACKUP</h2>
-            
-            <% if (data && data.length > 0) { %>
-                <div class="backup-grid">
-                    <% data.forEach((item, index) => { %>
-                        <div class="backup-card">
-                            <i class="fas fa-archive"></i>
-                            <h3><%= item.nama || `BACKUP ${index + 1}` %></h3>
-                            <p>ID: <code><%= item.id || 'N/A' %></code></p>
-                            <div class="backup-info">
-                                <span><i class="fas fa-calendar"></i> <%= new Date(item.tanggal_backup).toLocaleDateString('id-ID') || 'N/A' %></span>
-                                <span><i class="fas fa-tag"></i> <%= item.channel || 'N/A' %></span>
-                            </div>
-                            <div class="badge">
-                                ✓ TERSIMPAN
-                            </div>
+        <% if (data && data.length > 0) { %>
+            <div class="backup-grid" id="backup-grid">
+                <% data.forEach((item, index) => { %>
+                    <div class="backup-card">
+                        <i class="fas fa-archive"></i>
+                        <h3><%= item.nama || `BACKUP ${index + 1}` %></h3>
+                        <p>ID: <code><%= item.id || 'N/A' %></code></p>
+                        <div class="backup-info">
+                            <span><i class="fas fa-calendar"></i> <%= new Date(item.tanggal_backup).toLocaleDateString('id-ID') || 'N/A' %></span>
+                            <span><i class="fas fa-tag"></i> <%= item.channel || 'N/A' %></span>
                         </div>
-                    <% }); %>
-                </div>
-            <% } else { %>
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>BELUM ADA DATA</h3>
-                    <p>// TIDAK ADA BACKUP YANG TERSIMPAN SAAT INI</p>
-                </div>
-            <% } %>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p><i class="fas fa-bolt"></i> BUILT WITH EXPRESSJS | © 2026</p>
-        </div>
+                        <div class="badge">✓ TERSIMPAN</div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div id="backup-grid" class="backup-grid" style="display:none"></div>
+            <div class="empty-state" id="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>BELUM ADA DATA</h3>
+                <p>// TIDAK ADA BACKUP YANG TERSIMPAN SAAT INI</p>
+            </div>
+        <% } %>
     </div>
+
+    <div class="footer">
+        <p><i class="fas fa-bolt"></i> BUILT WITH EXPRESSJS + PUSHER REALTIME | © 2026</p>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // PUSHER REALTIME — koneksi ke channel backup-channel
+    // Ganti key & cluster sesuai dashboard Pusher kamu
+    // ============================================================
+    const pusher = new Pusher('<%= process.env.PUSHER_KEY %>', {
+        cluster: '<%= process.env.PUSHER_CLUSTER %>'
+    });
+
+    const channel = pusher.subscribe('backup-channel');
+    const dot = document.getElementById('pusher-dot');
+    const statusText = document.getElementById('pusher-status');
+
+    // Update indikator koneksi
+    pusher.connection.bind('connected', () => {
+        dot.className = 'dot connected';
+        statusText.textContent = 'REALTIME ON';
+    });
+    pusher.connection.bind('disconnected', () => {
+        dot.className = 'dot disconnected';
+        statusText.textContent = 'OFFLINE';
+    });
+    pusher.connection.bind('error', () => {
+        dot.className = 'dot disconnected';
+        statusText.textContent = 'ERROR';
+    });
+
+    // ============================================================
+    // Event: backup-baru — dipicu server saat ada backup masuk
+    // ============================================================
+    channel.bind('backup-baru', function(data) {
+        const grid = document.getElementById('backup-grid');
+        const emptyState = document.getElementById('empty-state');
+        const totalEl = document.getElementById('total-backup');
+
+        // Sembunyikan empty state jika ada
+        if (emptyState) {
+            emptyState.style.display = 'none';
+            grid.style.display = 'grid';
+        }
+
+        // Format tanggal
+        const tgl = new Date(data.waktu).toLocaleDateString('id-ID');
+
+        // Buat card baru
+        const card = document.createElement('div');
+        card.className = 'backup-card new-card';
+        card.innerHTML = `
+            <i class="fas fa-archive"></i>
+            <h3>${data.nama || 'BACKUP BARU'}</h3>
+            <p>ID: <code>${data.id}</code></p>
+            <div class="backup-info">
+                <span><i class="fas fa-calendar"></i> ${tgl}</span>
+                <span><i class="fas fa-tag"></i> ${data.channel || 'nodejs'}</span>
+                <span><i class="fas fa-check"></i> ${data.berhasil} berhasil, ${data.gagal} gagal</span>
+            </div>
+            <div class="badge">✓ TERSIMPAN</div>
+        `;
+
+        // Sisipkan di posisi paling atas
+        grid.insertBefore(card, grid.firstChild);
+
+        // Update counter total backup
+        const currentTotal = parseInt(totalEl.textContent) || 0;
+        totalEl.textContent = currentTotal + 1;
+        totalEl.classList.add('updated');
+        setTimeout(() => totalEl.classList.remove('updated'), 400);
+
+        // Tampilkan toast notifikasi
+        showToast(`Backup "${data.nama}" berhasil masuk!`);
+    });
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        toastMsg.textContent = msg;
+        toast.className = 'show';
+        setTimeout(() => { toast.className = ''; }, 3500);
+    }
+</script>
+
 </body>
 </html>
+
 
 <!-- <h1 style="text-align: center;">Nama Backup</h1>
 <p>
